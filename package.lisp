@@ -5,7 +5,20 @@
         #:uiop/run-program
         #:cl-fsnotify
         #:alexandria)
-  (:export #:bundle-vendor
+  ;;; You are probably best off using package qualified names rather
+  ;;; than importing all of this mess...
+  (:export #:*ps-dir*
+           #:*js-dir*
+           #:*main-file*
+           #:*npm-dir*
+           #:*node-dependencies*
+           #:*browserify*
+           #:*uglifyjs*
+           #:*js-beautify-cmd*
+           #:*vendor-bundle-file*
+           #:*main-bundle-file*
+           #:*sleep-time*
+           #:bundle-vendor
            #:bundle-main
            #:minify-js
            #:watch-parenscript
