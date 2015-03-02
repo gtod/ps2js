@@ -11,6 +11,7 @@
                #:uiop/filesystem
                #:uiop/run-program
                #:log4cl
+               #:yason
                #:cl-fsnotify)
   :serial t
   :components ((:file "package")

@@ -14,13 +14,15 @@
 This must be the JS version of your main Parenscript file.")
 
 (defparameter *npm-dir* "/home/gtod/"
-  "The directory under which your node dependencies are installed.")
+  "The directory under which your node dependencies are installed.
+Must contain a package.json file with those dependencies list.")
 
-(defparameter *node-dependencies*
-  '("react" "react/addons" "react-bootstrap" "ramda" "superagent"
-    "moment" "isomorph" "newforms")
-  "A list of strings being the npm names of required dependencies of your
-user Javascript.")
+(defparameter *extra-npm-dependencies* nil
+  "Usualy your deps should be listed in package.json.  But, for example,
+react/addons has no place in there because it is part of react proper.
+Yet we do want it in our vendor bundle...  So put the same string you
+would put in your require stmt in JS in a list here for those
+troublesome extra deps.")
 
 (defparameter *browserify* "/usr/local/bin/browserify"
   "The full pathname of the browserify executable.")
@@ -45,6 +47,15 @@ your project.")
 input Parenscript files.")
 
 ;;;; Implementation
+
+(defun package-json-file ()
+  (merge-pathnames* *npm-dir* "package.json"))
+
+(defun node-dependencies ()
+  (with-input-from-file (stream (package-json-file))
+    (append
+     *extra-npm-dependencies*
+     (hash-table-keys (gethash "dependencies" (yason:parse stream))))))
 
 (defun replace-file-extension (file-name ext)
   "Replace the file extension of FILE with EXT."
@@ -85,10 +96,10 @@ Input file from *PS-DIR* and output file to *JS-DIR*."
 ;;;; Interface
 
 (defun bundle-vendor ()
-  "Bundle your *NODE-DEPENDENCISES* into *VENDOR-BUNDLE-FILE*.
-Re-run only when your dependencies advance a version."
+  "Bundle your node dependencies into *VENDOR-BUNDLE-FILE*.
+Re-run only when npm update your deps."
   (browserify-vendor (merge-pathnames* *js-dir* *vendor-bundle-file*)
-                     *node-dependencies*))
+                     (node-dependencies)))
 
 (defun bundle-main ()
   "Bundle your main JS file together with all your other JS files.
@@ -96,7 +107,7 @@ Usually called on your behalf by WATCH-PARENSCRIPT."
   (browserify-main
    (merge-pathnames* *js-dir* *main-file*)
    (merge-pathnames* *js-dir* *main-bundle-file*)
-   *node-dependencies*))
+   (node-dependencies)))
 
 (defun minify-js (js-file)
   "JS Minify JS-FILE to <file>.min.js and produce a source map

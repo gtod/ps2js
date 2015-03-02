@@ -11,7 +11,7 @@
            #:*js-dir*
            #:*main-file*
            #:*npm-dir*
-           #:*node-dependencies*
+           #:*extra-npm-dependencies*
            #:*browserify*
            #:*uglifyjs*
            #:*js-beautify-cmd*
